@@ -7,5 +7,5 @@ Easily apply changes from pull requests.
 2. Perform discover install.
 3. Go to Component Options and set organization name and repository name
 
-Click Apply Patch to test the pull request.
+Click Apply Patch to apply the proposed changes from the pull request.
 Click Revert Patch to revert an applied patch.
