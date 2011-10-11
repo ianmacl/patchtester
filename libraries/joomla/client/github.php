@@ -171,7 +171,6 @@ class JGithub
 		$response->code = $request_data['http_code'];
 
 		curl_close($this->http);
-
 		return $response;
 	}
 }

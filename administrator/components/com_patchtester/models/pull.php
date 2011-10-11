@@ -75,16 +75,21 @@ class PatchtesterModelPull extends JModel
 		
 		foreach ($files AS $file)
 		{
+			$http = new JHttp;
 			// we only create a backup if the file already exists
 			if (file_exists(JPATH_ROOT . '/' . $file)) {
 				JFile::copy(JPath::clean(JPATH_ROOT . '/' . $file), JPATH_COMPONENT . '/backups/' . md5($file) . '.txt');
 			}
 
 			$url = 'https://raw.github.com/' . $pull->head->user->login . '/' . $pull->head->repo->name . '/' .
-				$pull->head->ref . $file;
-			$newFile = $http->get($url);
-			JFile::write(JPath::clean(JPATH_ROOT . '/' . $file), $newFile->body);
-
+				$pull->head->ref . '/' . $file;
+			try {
+				$newFile = $http->get($url);
+				JFile::write(JPath::clean(JPATH_ROOT . '/' . $file), $newFile->body);
+			} catch (Exception $e) {
+				echo $e->getMessage();
+				echo $url;
+			}
 		}
 		$table->pull_id = $pull->number;
 		$table->data = json_encode($files);

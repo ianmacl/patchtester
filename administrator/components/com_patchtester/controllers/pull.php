@@ -23,7 +23,7 @@ class PatchtesterControllerPull extends JController
 		if ($model->apply(JRequest::getVar('pull_id'))) {
 			$msg = 'Patch successfully applied';
 		} else {
-			$msg = 'Patch did not apply';
+			$msg = $model->getError();
 		}
 		$this->setRedirect(JRoute::_('index.php?option=com_patchtester&view=pulls', false), $msg);
 	}
