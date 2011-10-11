@@ -56,7 +56,7 @@ JHtml::_('behavior.tooltip');
 					<?php echo JHtml::_('grid.id', $i, $item->id); ?>
 				</td>
 				<td>
-					<a href="<?php echo JRoute::_('index.php?option=com_patchtester&view=pull&id='.(int)$item->id); ?>"><?php echo $item->title; ?></a>
+					<a href="<?php echo $item->html_url; ?>" title="<?php echo htmlspecialchars($item->body); ?>"><?php echo $item->title; ?></a>
 				</td>
 				<td class="center">
 					<?php
