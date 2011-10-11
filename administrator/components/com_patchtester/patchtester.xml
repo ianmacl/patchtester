@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="1.7" method="upgrade">
+	<name>com_patchtester</name>
+	<author>Ian MacLennan</author>
+	<creationDate>October 2011</creationDate>
+	<copyright>(C) 2011 Ian MacLennan. All rights reserved.
+	</copyright>
+	<license>GNU General Public License version 2 or later; see
+		LICENSE.txt</license>
+	<authorEmail>ianlenmac@gmail.com</authorEmail>
+	<authorUrl>http://github.com/ianmacl</authorUrl>
+	<version>1.0alpha</version>
+	<description>COM_PATCHTESTER_XML_DESCRIPTION</description>
+
+	<install> <!-- Runs on install -->
+    	<sql>
+        	<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+  		</sql>
+    </install>
+    <uninstall> <!-- Runs on uninstall -->
+    	<sql>
+        	<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+  		</sql>
+   </uninstall>
+
+	<files folder="site">
+		<filename>patchtester.php</filename>
+	</files>
+	<languages folder="site">
+		<language tag="en-GB">language/en-GB.com_patchtester.ini</language>
+	</languages>
+	<administration>
+		<menu img="class:patchtester">com_patchtester</menu>
+		<files folder="admin">
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>patchtester.php</filename>
+			<folder>controllers</folder>			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<folder>language</folder>
+		</files>
+	</administration>
+</extension>

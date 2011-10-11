@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="component"
+		label="COM_PATCHTESTER_COMPONENT_LABEL"
+		description="COM_PATCHTESTER_COMPONENT_DESC"
+	>
+
+		<field name="org" type="text"
+			default="joomla"
+			description="COM_PATCHTESTER_FIELD_ORG_DESC"
+			label="COM_PATCHTESTER_FIELD_ORG_LABEL"
+		/>
+
+		<field	name="repo" type="text"
+				default="joomla-cms"
+				description="COM_PATCHTESTER_FIELD_REPO_DESC"
+				label="COM_PATCHTESTER_FIELD_REPO_LABEL"
+		/>
+
+	</fieldset>
+
+	<fieldset name="permissions"
+		description="JCONFIG_PERMISSIONS_DESC"
+		label="JCONFIG_PERMISSIONS_LABEL"
+	>
+
+		<field name="rules" type="rules"
+			component="com_patchtester"
+			filter="rules"
+			validate="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			section="component" />
+	</fieldset>
+</config>
