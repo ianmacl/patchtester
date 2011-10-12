@@ -112,7 +112,10 @@ class JGithub
 			CURLOPT_CONNECTTIMEOUT => 120,
 			CURLOPT_TIMEOUT => 120,
 			CURLINFO_HEADER_OUT => true,
-			CURLOPT_HTTPHEADER => array('Content-type: application/json')
+			CURLOPT_HTTPHEADER => array('Content-type: application/json'),
+			CURLOPT_CAINFO => dirname(__FILE__) . '/github/GTECyberTrustGlobalRoot',
+			CURLOPT_SSL_VERIFYPEER => true,
+			CURLOPT_SSL_VERIFYHOST, 2
 		);
 
 		switch ($this->authentication_method)
