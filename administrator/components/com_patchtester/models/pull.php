@@ -25,7 +25,7 @@ class PatchtesterModelPull extends JModel
         protected function populateState()
         {
                 // Initialise variables.
-                $app = JFactory::getApplication('administrator');
+//                 $app = JFactory::getApplication('administrator');
 
                 // Load the parameters.
                 $params = JComponentHelper::getParams('com_patchtester');
@@ -33,7 +33,7 @@ class PatchtesterModelPull extends JModel
                 $this->setState('github_user', $params->get('org'));
                 $this->setState('github_repo', $params->get('repo'));
 
-                parent::populateState();
+//                 parent::populateState();
         }
 
 
@@ -140,7 +140,7 @@ class PatchtesterModelPull extends JModel
 		foreach ($files AS $file)
 		{
 			// we only create a backup if the file already exists
-			if (file_exists(JPATH_ROOT . '/' . $file->new) && ($file->action == 'modified' || $file->action == 'deleted')) {
+			if ($file->action == 'deleted' || (file_exists(JPATH_ROOT . '/' . $file->new) && $file->action == 'modified')) {
 				JFile::copy(JPath::clean(JPATH_ROOT . '/' . $file->old), JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt');
 			}
 
