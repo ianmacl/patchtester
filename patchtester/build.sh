@@ -3,6 +3,7 @@ rm -rf admin
 rm -rf ../patchtester.tar.bz2
 cp -r ../administrator/components/com_patchtester admin
 cp -r ../components/com_patchtester site
+rm -rf admin/backups/*.txt
 mv admin/patchtester.xml patchtester.xml
 tar jcf ../com_patchtester.tar.bz2 site admin patchtester.xml
 
