@@ -9,6 +9,7 @@
 defined('_JEXEC') or die;
 
 JHtml::_('behavior.tooltip');
+JHtml::_('behavior.modal');
 
 ?>
 <script type="text/javascript">
@@ -28,6 +29,9 @@ JHtml::_('behavior.tooltip');
 				</th>
 				<th class="title">
 					<?php echo JText::_('JGLOBAL_TITLE'); ?>
+				</th>
+				<th class="title">
+					<?php echo JText::_('COM_PATCHTESTER_JOOMLACODE_ISSUE'); ?>
 				</th>
 				<th width="20%">
 					<?php echo JText::_('JSTATUS'); ?>
@@ -57,6 +61,15 @@ JHtml::_('behavior.tooltip');
 				</td>
 				<td>
 					<a href="<?php echo $item->html_url; ?>" title="<?php echo htmlspecialchars($item->body); ?>"><?php echo $item->title; ?></a>
+				</td>
+				<td>
+					<?php
+					if ($item->joomlacode_issue > 0) {
+						echo '<a href="http://joomlacode.org/gf/project/joomla/tracker/?action=TrackerItemEdit&tracker_item_id=';
+						echo  $item->joomlacode_issue . '" class="modal" rel="{handler: \'iframe\', size: {x: 900, y: 500}}">';
+						echo '[#' . $item->joomlacode_issue . ']</a>';
+					}
+					?>
 				</td>
 				<td class="center">
 					<?php

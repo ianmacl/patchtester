@@ -1,1 +1,1 @@
-DROP TABLE IF NOT EXISTS `#__tests`
+DROP TABLE IF EXISTS `#__tests`
