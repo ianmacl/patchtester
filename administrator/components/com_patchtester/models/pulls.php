@@ -55,8 +55,8 @@ class PatchtesterModelPulls extends JModelList
 		$params = JComponentHelper::getParams('com_patchtester');
 		
 		$this->setState('params', $params);
-		$this->setState('github_user', $params->get('org'));
-		$this->setState('github_repo', $params->get('repo'));
+		$this->setState('github_user', $params->get('org', 'joomla'));
+		$this->setState('github_repo', $params->get('repo', 'joomla-cms'));
 		// List state information.
 		parent::populateState('title', 'asc');
 	}
@@ -100,6 +100,13 @@ class PatchtesterModelPulls extends JModelList
 		$github = new JGithub();
 		$pulls = $github->pulls->getAll($this->getState('github_user'), $this->getState('github_repo'));
 		usort($pulls, array($this, 'sortItems'));
+
+		foreach ($pulls AS &$pull)
+		{
+			$matches = array();
+			preg_match('#\[\#([0-9]+)\]#', $pull->title, $matches);
+			$pull->joomlacode_issue = isset($matches[1]) ? $matches[1] : 0;
+		}
 		return $pulls;
 	}
 
