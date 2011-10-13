@@ -11,6 +11,9 @@ defined('_JEXEC') or die;
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.modal');
 
+$listOrder	= $this->escape($this->state->get('list.ordering'));
+$listDirn	= $this->escape($this->state->get('list.direction'));
+
 ?>
 <script type="text/javascript">
 	var submitpatch = function(task, id) {
@@ -20,6 +23,15 @@ JHtml::_('behavior.modal');
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_patchtester&view=pulls'); ?>" method="post" name="adminForm" id="adminForm">
+	<fieldset id="filter-bar">
+		<div class="filter-search fltlft">
+			<label class="filter-search-lbl" for="filter_search"><?php echo JText::_('JSEARCH_FILTER_LABEL'); ?></label>
+			<input type="text" name="filter_search" id="filter_search" value="<?php echo $this->escape($this->state->get('filter.search')); ?>" title="<?php echo JText::_('COM_BANNERS_SEARCH_IN_TITLE'); ?>" />
+			<button type="submit"><?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?></button>
+			<button type="button" onclick="document.id('filter_search').value='';this.form.submit();"><?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?></button>
+		</div>
+	</fieldset>
+	<div class="clr"> </div>
 
 	<table class="adminlist">
 		<thead>
@@ -27,8 +39,11 @@ JHtml::_('behavior.modal');
 				<th width="1%">
 					<input type="checkbox" name="checkall-toggle" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this)" />
 				</th>
+				<th width="5%">
+					<?php echo JHtml::_('grid.sort', 'COM_PATCHTESTER_PULL_ID', 'number', $listDirn, $listOrder); ?>
+				</th>
 				<th class="title">
-					<?php echo JText::_('JGLOBAL_TITLE'); ?>
+					<?php echo JHtml::_('grid.sort', 'JGLOBAL_TITLE', 'title', $listDirn, $listOrder); ?>
 				</th>
 				<th class="title">
 					<?php echo JText::_('COM_PATCHTESTER_JOOMLACODE_ISSUE'); ?>
@@ -58,6 +73,9 @@ JHtml::_('behavior.modal');
 			<tr class="row<?php echo $i % 2; ?>">
 				<td class="center">
 					<?php echo JHtml::_('grid.id', $i, $item->id); ?>
+				</td>
+				<td class="center">
+					<?php echo $item->number; ?>
 				</td>
 				<td>
 					<a href="<?php echo $item->html_url; ?>" title="<?php echo htmlspecialchars($item->body); ?>"><?php echo $item->title; ?></a>
@@ -98,6 +116,8 @@ JHtml::_('behavior.modal');
 		<input type="hidden" name="task" value="" />
 		<input type="hidden" name="boxchecked" value="0" />
 		<input type="hidden" name="pull_id" id="pull_id" value="" />
+		<input type="hidden" name="filter_order" value="<?php echo $listOrder; ?>" />
+		<input type="hidden" name="filter_order_Dir" value="<?php echo $listDirn; ?>" />
 		<?php echo JHtml::_('form.token'); ?>
 	</div>
 </form>
