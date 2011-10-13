@@ -22,10 +22,12 @@ class PatchtesterControllerPull extends JController
 		$model = $this->getModel('pull');
 		if ($model->apply(JRequest::getVar('pull_id'))) {
 			$msg = 'Patch successfully applied';
+			$type = 'message';
 		} else {
 			$msg = $model->getError();
+			$type = 'error';
 		}
-		$this->setRedirect(JRoute::_('index.php?option=com_patchtester&view=pulls', false), $msg);
+		$this->setRedirect(JRoute::_('index.php?option=com_patchtester&view=pulls', false), $msg, $type);
 	}
 
 	public function revert()
@@ -33,10 +35,12 @@ class PatchtesterControllerPull extends JController
 		$model = $this->getModel('pull');
 		if ($model->revert(JRequest::getVar('pull_id'))) {
 			$msg = 'Patch successfully reverted';
+			$type = 'message';
 		} else {
 			$msg = 'Patch did not revert';
+			$type = 'error';
 		}
-		$this->setRedirect(JRoute::_('index.php?option=com_patchtester&view=pulls', false), $msg);
+		$this->setRedirect(JRoute::_('index.php?option=com_patchtester&view=pulls', false), $msg, $type);
 	}
 
 }
