@@ -26,9 +26,6 @@
 	<files folder="site">
 		<filename>patchtester.php</filename>
 	</files>
-	<languages folder="site">
-		<language tag="en-GB">language/en-GB.com_patchtester.ini</language>
-	</languages>
 	<administration>
 		<menu img="class:patchtester">com_patchtester</menu>
 		<files folder="admin">
@@ -36,11 +33,18 @@
 			<filename>config.xml</filename>
 			<filename>controller.php</filename>
 			<filename>patchtester.php</filename>
-			<folder>controllers</folder>			<folder>models</folder>
+			<folder>controllers</folder>
+			<folder>models</folder>
 			<folder>sql</folder>
 			<folder>tables</folder>
 			<folder>views</folder>
 			<folder>language</folder>
 		</files>
 	</administration>
+
+	<!-- Extension Update Specification -->
+	<updateservers>
+		<server type="extension">https://raw.github.com/ianmacl/patchtester/master/updates/patchtester.xml</server>
+	</updateservers>
+
 </extension>

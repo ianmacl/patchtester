@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="1.7">
+	<name>Patch Tester</name>
+	<packagename>patchtester</packagename>
+	<version>1.0alpha</version>
+	<url>http://github.com/ianmacl/patchtester</url>
+	<packager>Ian MacLennan</packager>
+	<packagerurl>http://github.com/ianmacl/patchtester</packagerurl>
+	<description>Patch Tester complete with Github Library</description>
+	<files>
+		<file type="file" 	    id="file_github" >file_github.tar.bz2</file>
+		<file type="component" 	id="com_patchtester" >com_patchtester.tar.bz2</file>
+	</files>
+</extension>
