@@ -15,27 +15,23 @@ defined('_JEXEC') or die;
 class PatchtesterModelPull extends JModel
 {
 
-        /**
-         * Method to auto-populate the model state.
-         *
-         * Note. Calling getState in this method will result in recursion.
-         *
-         * @since       1.6
-         */
-        protected function populateState()
-        {
-                // Initialise variables.
-                $app = JFactory::getApplication('administrator');
+	/**
+	 * Method to auto-populate the model state.
+	 *
+	 * Note. Calling getState in this method will result in recursion.
+	 *
+	 * @since       1.6
+	 */
+	protected function populateState()
+	{
+		// Load the parameters.
+		$params = JComponentHelper::getParams('com_patchtester');
+		$this->setState('params', $params);
+		$this->setState('github_user', $params->get('org'));
+		$this->setState('github_repo', $params->get('repo'));
 
-                // Load the parameters.
-                $params = JComponentHelper::getParams('com_patchtester');
-                $this->setState('params', $params);
-                $this->setState('github_user', $params->get('org'));
-                $this->setState('github_repo', $params->get('repo'));
-
-                parent::populateState();
-        }
-
+		parent::populateState();
+	}
 
 	protected function parsePatch($patch)
 	{
@@ -112,7 +108,7 @@ class PatchtesterModelPull extends JModel
 				$http = new JHttp;
 
 				$url = 'https://raw.github.com/' . $pull->head->user->login . '/' . $pull->head->repo->name . '/' .
-					$pull->head->ref . '/' . $file->new;
+				$pull->head->ref . '/' . $file->new;
 
 
 				// if the backup file already exists, we can't apply the patch
@@ -140,7 +136,7 @@ class PatchtesterModelPull extends JModel
 		foreach ($files AS $file)
 		{
 			// we only create a backup if the file already exists
-			if (file_exists(JPATH_ROOT . '/' . $file->new) && ($file->action == 'modified' || $file->action == 'deleted')) {
+			if ($file->action == 'deleted' || (file_exists(JPATH_ROOT . '/' . $file->new) && $file->action == 'modified')) {
 				JFile::copy(JPath::clean(JPATH_ROOT . '/' . $file->old), JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt');
 			}
 
