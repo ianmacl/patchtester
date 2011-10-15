@@ -11,6 +11,7 @@ defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.environment.uri');
 jimport('joomla.client.http');
+jimport('joomla.client.curl');
 JLoader::register('JHttpResponse', JPATH_PLATFORM.'/joomla/client/http.php');
 jimport('joomla.client.github.githubpulls');
 jimport('joomla.client.github.githubgists');
@@ -32,7 +33,7 @@ class JGithub
 
 	/**
 	 * Authentication Method
-	 * 
+	 *
 	 * Possible values are 0 - no authentication, 1 - basic authentication, 2 - OAuth
 	 *
 	 * @var    string
@@ -43,7 +44,7 @@ class JGithub
 	protected $gists = null;
 
 	protected $issues = null;
-	
+
 	protected $pulls = null;
 
 	protected $credentials = array();
@@ -69,8 +70,6 @@ class JGithub
 		} else {
 			$this->authentication_method = JGithub::AUTHENTICATION_NONE;
 		}
-
-		$this->http = curl_init();
 	}
 
 	public function __get($name)
@@ -95,27 +94,20 @@ class JGithub
 			}
 			return $this->pulls;
 		}
-
 	}
 
 	public function sendRequest($url, $method = 'get', $data = array(), $options = array())
 	{
-		
-		$this->http = curl_init();
-
 		$curl_options = array(
-			CURLOPT_URL => 'https://api.github.com'.$url,
-			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_HEADER => false,
 			CURLOPT_FOLLOWLOCATION => false,
 			CURLOPT_USERAGENT => 'JGithub',
 			CURLOPT_CONNECTTIMEOUT => 120,
-			CURLOPT_TIMEOUT => 120,
 			CURLINFO_HEADER_OUT => true,
 			CURLOPT_HTTPHEADER => array('Content-type: application/json'),
 			CURLOPT_CAINFO => dirname(__FILE__) . '/github/cacert.pem',
 			CURLOPT_SSL_VERIFYPEER => true,
-			CURLOPT_SSL_VERIFYHOST, 2
+			CURLOPT_SSL_VERIFYHOST => 2,
 		);
 
 		switch ($this->authentication_method)
@@ -133,7 +125,6 @@ class JGithub
 				break;
 		}
 
-
 		switch ($method) {
 			case 'post':
 				$curl_options[CURLOPT_POST] = 1;
@@ -146,34 +137,32 @@ class JGithub
 				$curl_options[CURLOPT_CUSTOMREQUEST] = 'PUT';
 				$curl_options[CURLOPT_HTTPGET] = false;
 				break;
-				
+
 			case 'patch':
 				$curl_options[CURLOPT_POSTFIELDS] = json_encode($data);
+
 			case 'delete':
 				$curl_options[CURLOPT_CUSTOMREQUEST] = strtoupper($method);
 				$curl_options[CURLOPT_POST] = false;
 				$curl_options[CURLOPT_HTTPGET] = false;
-				
 				break;
 
 			case 'get':
 				$curl_options[CURLOPT_POSTFIELDS] = null;
 				$curl_options[CURLOPT_POST] = false;
 				$curl_options[CURLOPT_HTTPGET] = true;
-
 				break;
 		}
 
-		curl_setopt_array($this->http, $curl_options);
+		$curlResponse = JCurl::getAdapter('https://api.github.com'.$url)
+		->setOptions($curl_options)->fetch();
 
 		$response = new JHttpResponse;
-		$response->body = json_decode(curl_exec($this->http));
 
-		$request_data = curl_getinfo($this->http);
-		$response->headers = $request_data['request_header'];
-		$response->code = $request_data['http_code'];
+		$response->code = $curlResponse->http_code;
+		$response->headers = $curlResponse->request_header;
+		$response->body = json_decode($curlResponse->body);
 
-		curl_close($this->http);
 		return $response;
 	}
 }
