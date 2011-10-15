@@ -103,21 +103,28 @@ class PatchtesterModelPulls extends JModelList
 		$this->orderDir = $this->getState('list.direction', 'asc');
 		$search = $this->getState('filter.search');
 
-		$github = new JGithub();
-		$pulls = $github->pulls->getAll($this->getState('github_user'), $this->getState('github_repo'));
-		usort($pulls, array($this, 'sortItems'));
+		try {
+			$github = new JGithub();
+			$pulls = $github->pulls->getAll($this->getState('github_user'), $this->getState('github_repo'));
+			usort($pulls, array($this, 'sortItems'));
 
-		foreach ($pulls AS $i => &$pull)
-		{
-			if($search && false === strpos($pull->title, $search)) {
-				unset($pulls[$i]);
-				continue;
+			foreach ($pulls AS $i => &$pull)
+			{
+				if($search && false === strpos($pull->title, $search)) {
+					unset($pulls[$i]);
+					continue;
+				}
+				$matches = array();
+				preg_match('#\[\#([0-9]+)\]#', $pull->title, $matches);
+				$pull->joomlacode_issue = isset($matches[1]) ? $matches[1] : 0;
 			}
-			$matches = array();
-			preg_match('#\[\#([0-9]+)\]#', $pull->title, $matches);
-			$pull->joomlacode_issue = isset($matches[1]) ? $matches[1] : 0;
+
+			return $pulls;
+		} catch (Exception $e) {
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+			return array();
 		}
-		return $pulls;
 	}
 
 	public function sortItems($a, $b)
