@@ -27,8 +27,8 @@ class PatchtesterModelPull extends JModel
 		// Load the parameters.
 		$params = JComponentHelper::getParams('com_patchtester');
 		$this->setState('params', $params);
-		$this->setState('github_user', $params->get('org'));
-		$this->setState('github_repo', $params->get('repo'));
+		$this->setState('github_user', $params->get('org', 'joomla'));
+		$this->setState('github_repo', $params->get('repo', 'joomla-cms'));
 
 		parent::populateState();
 	}
