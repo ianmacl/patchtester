@@ -11,6 +11,7 @@ rm -rf github
 mkdir github
 cp ../libraries/joomla/client/github.php github
 cp ../libraries/joomla/client/githubobject.php github
+cp ../libraries/joomla/client/curl.php github
 cp -r ../libraries/joomla/client/github github
 cp github.xml github
 tar jcf ../file_github.tar.bz2 github/*
