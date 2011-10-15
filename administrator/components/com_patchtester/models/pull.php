@@ -38,7 +38,9 @@ class PatchtesterModelPull extends JModel
 		$state = 0;
 		$files = array();
 
-		foreach ($patch AS $line) {
+		$lines = explode("\n", $patch);
+
+		foreach ($lines AS $line) {
 			switch ($state)
 			{
 				case 0:
@@ -83,15 +85,14 @@ class PatchtesterModelPull extends JModel
 	public function apply($id)
 	{
 		jimport('joomla.client.github');
-		jimport('joomla.client.http');
+		jimport('joomla.client.curl');
 
 		$table = JTable::getInstance('tests', 'PatchTesterTable');
-		$github = new JGithub();
+		$github = new JGithub;
 		$pull = $github->pulls->get($this->getState('github_user'), $this->getState('github_repo'), $id);
 
 		if (is_null($pull->head->repo)) {
-			$this->setError(JText::_('COM_PATCHTESTER_REPO_IS_GONE'));
-			return false;
+			throw new Exception(JText::_('COM_PATCHTESTER_REPO_IS_GONE'));
 		}
 
 		$patch = JCurl::getAdapter($pull->diff_url)
@@ -100,17 +101,18 @@ class PatchtesterModelPull extends JModel
 		$files = $this->parsePatch($patch);
 
 		foreach($files AS $file) {
+			if ($file->action == 'deleted' && ! file_exists(JPATH_ROOT . '/' . $file->old)) {
+				throw new Exception(sprintf(JText::_('COM_PATCHTESTER_FILE_DELETED_DOES_NOT_EXIST_S'), $file->old));
+			}
 			if ($file->action == 'added' || $file->action == 'modified') {
 
 				// if the backup file already exists, we can't apply the patch
-				if ($file->action != 'deleted' && file_exists(JPATH_COMPONENT . '/backups/' . md5($file->new) . '.txt')) {
-					$this->setError(JText::_('COM_PATCHTESTER_CONFLICT'));
-					return false;
+				if (file_exists(JPATH_COMPONENT . '/backups/' . md5($file->new) . '.txt')) {
+					throw new Exception(sprintf(JText::_('COM_PATCHTESTER_CONFLICT_S'), $file->new));
 				}
 
-				if (($file->action == 'deleted' || $file->action == 'modified') && !file_exists(JPATH_ROOT . '/' . $file->old)) {
-					$this->setError(JText::_('COM_PATCHTESTER_FILE_DELETED_MODIFIED_DOES_NOT_EXIST'));
-					return false;
+				if ($file->action == 'modified' && ! file_exists(JPATH_ROOT . '/' . $file->old)) {
+					throw new Exception(sprintf(JText::_('COM_PATCHTESTER_FILE_MODIFIED_DOES_NOT_EXIST_S'), $file->old));
 				}
 
 				$url = 'https://raw.github.com/' . $pull->head->user->login . '/' . $pull->head->repo->name . '/' .
@@ -127,34 +129,41 @@ class PatchtesterModelPull extends JModel
 		{
 			// we only create a backup if the file already exists
 			if ($file->action == 'deleted' || (file_exists(JPATH_ROOT . '/' . $file->new) && $file->action == 'modified')) {
-				JFile::copy(JPath::clean(JPATH_ROOT . '/' . $file->old), JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt');
+				if( ! JFile::copy(JPath::clean(JPATH_ROOT . '/' . $file->old), JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt')) {
+					throw new Exception(sprintf('Can not copy file %s to %s'
+					, JPATH_ROOT . '/' . $file->old, JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt'));
+				}
 			}
 
 			switch ($file->action)
 			{
 				case 'modified':
 				case 'added':
-					JFile::write(JPath::clean(JPATH_ROOT . '/' . $file->new), $file->body);
+					if( ! JFile::write(JPath::clean(JPATH_ROOT . '/' . $file->new), $file->body)) {
+						throw new Exception(sprintf('Can not write the file: %s', JPATH_ROOT . '/' . $file->new));
+					}
 					break;
 
 				case 'deleted':
-					JFile::delete(JPATH::clean(JPATH_ROOT . '/' . $file->old));
+					if( ! JFile::delete(JPATH::clean(JPATH_ROOT . '/' . $file->old))) {
+						throw new Exception(sprintf('Can not delete the file: %s', JPATH_ROOT . '/' . $file->old));
+					}
 					break;
 			}
 		}
+
 		$table->pull_id = $pull->number;
 		$table->data = json_encode($files);
 		$table->patched_by = JFactory::getUser()->id;
 		$table->applied = 1;
 		$version = new JVersion;
 		$table->applied_version = $version->getShortVersion();
-		$result = $table->store();
 
-		if ($result) {
-			return true;
-		} else {
-			return false;
+		if ( ! $table->store()) {
+			throw new Exception($table->getError());
 		}
+
+		return true;
 	}
 
 	public function revert($id)
@@ -178,12 +187,21 @@ class PatchtesterModelPull extends JModel
 			switch ($file->action) {
 				case 'deleted':
 				case 'modified':
-					JFile::copy(JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt', JPATH_ROOT . '/' . $file->old);
-					JFile::delete(JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt');
+					if ( ! JFile::copy(JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt', JPATH_ROOT . '/' . $file->old)) {
+						throw new Exception(sprintf('Can not copy file %s to %s'
+						, JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt'
+						, JPATH_ROOT . '/' . $file->old));
+					}
+					if ( ! JFile::delete(JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt')) {
+						throw new Exception(sprintf('Can not delete the file: %s'
+						, JPATH_COMPONENT . '/backups/' . md5($file->old) . '.txt'));
+					}
 					break;
 
 				case 'added':
-					JFile::delete(JPath::clean(JPATH_ROOT . '/' . $file->new));
+					if ( ! JFile::delete(JPath::clean(JPATH_ROOT . '/' . $file->new))) {
+						throw new Exception(sprintf('Can not delete the file: %s', JPATH_ROOT . '/' . $file->new));
+					}
 					break;
 			}
 		}
