@@ -88,28 +88,19 @@ class PatchtesterModelPull extends JModel
 		$table = JTable::getInstance('tests', 'PatchTesterTable');
 		$github = new JGithub();
 		$pull = $github->pulls->get($this->getState('github_user'), $this->getState('github_repo'), $id);
-		$patchUrl = $pull->diff_url;
-
-		$http = new JHttp;
-
-		$patch = $http->get($patchUrl)->body;
-		$patch = explode("\n", $patch);
-
 
 		if (is_null($pull->head->repo)) {
 			$this->setError(JText::_('COM_PATCHTESTER_REPO_IS_GONE'));
 			return false;
 		}
 
+		$patch = JCurl::getAdapter($pull->diff_url)
+		->fetch()->body;
+
 		$files = $this->parsePatch($patch);
 
 		foreach($files AS $file) {
 			if ($file->action == 'added' || $file->action == 'modified') {
-				$http = new JHttp;
-
-				$url = 'https://raw.github.com/' . $pull->head->user->login . '/' . $pull->head->repo->name . '/' .
-				$pull->head->ref . '/' . $file->new;
-
 
 				// if the backup file already exists, we can't apply the patch
 				if ($file->action != 'deleted' && file_exists(JPATH_COMPONENT . '/backups/' . md5($file->new) . '.txt')) {
@@ -122,12 +113,11 @@ class PatchtesterModelPull extends JModel
 					return false;
 				}
 
-				try {
-					$file->body = $http->get($url)->body;
-				} catch (Exception $e) {
-					$this->setError(JText::_('COM_PATCHTESTER_APPLY_FAILED_ERROR_RETRIEVING_FILE'));
-					return false;
-				}
+				$url = 'https://raw.github.com/' . $pull->head->user->login . '/' . $pull->head->repo->name . '/' .
+					$pull->head->ref . '/' . $file->new;
+
+				$file->body = JCurl::getAdapter($url)
+				->fetch()->body;
 			}
 		}
 
