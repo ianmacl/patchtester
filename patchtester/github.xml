@@ -13,6 +13,7 @@
 	<!-- Fileset definition -->
 	<fileset>
 		<files target="libraries/joomla/client">
+			<filename>curl.php</filename>
 			<filename>github.php</filename>
 			<filename>githubobject.php</filename>
 			<folder>github</folder>
