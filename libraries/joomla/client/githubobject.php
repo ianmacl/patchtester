@@ -44,7 +44,7 @@ class JGithubObject
 	{
 		//TODO: Make a new base class and move paginate into it
 		$query_string = array();
-		
+
 		if ($page > 0) {
 			$query_string[] = 'page='.(int)$page;
 		}
